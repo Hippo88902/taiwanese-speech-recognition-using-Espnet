@@ -2,6 +2,11 @@
 # 學號: 311511057 姓名: 張詔揚
 ## 使用ESPnet來做台語語音辨認
 模型說明詳見(Espnet改進與調整.pdf)
+
+## 使用ESPnet做台語語音辨認
+
+ESPnet是使用類神經網路模型，因此在訓練前，不需要跟kaldi一樣，使用MFCC去求切割位置，而是利用深度學習的方式去訓練特徵參數。
+
 ## 資料規格:
 
 1. 單人女聲聲音（高雄腔）
@@ -10,15 +15,11 @@
    
 ## Table of Contents
 
-- [使用ESPnet做台語語音辨認](#使用espnet做台語語音辨認)
 - [環境設置](#環境設置)
+- [訓練資料目錄](#訓練資料目錄)
 - [Data-Preprocessing-for-ESPnet](#data-preprocessing-for-espnet)
 - [Training-ESPnet](#Training-ESPnet)
 - [Conclusion](#conclusion)
-
-## 使用ESPnet做台語語音辨認
-
-ESPnet是使用類神經網路模型，因此在訓練前，不需要跟kaldi一樣，使用MFCC去求切割位置，而是利用深度學習的方式去訓練特徵參數。
 
 事前準備:
 
@@ -86,9 +87,7 @@ $ ./TEMPLATE/asr1/setup.sh ./taiwanese/asr1
 
    裝好可以跑yesno測試環境有沒有問題
 
-## Data-Preprocessing-for-ESPnet
-
-# 訓練資料目錄:
+## 訓練資料目錄:
 ```
 • downloads/
 •    data_aishell/
@@ -106,6 +105,7 @@ $ ./TEMPLATE/asr1/setup.sh ./taiwanese/asr1
 •          --aishell_transcript.txt #放與音檔對應的文字檔
 ```
 
+## Data-Preprocessing-for-ESPnet
 
 1. 與Kaldi不同，ESPnet除train/test外，另外還需一組dev資料來幫助訓練，使ESPnet在training時，能及時協助評估訓練效能。此外我們通常會將dataset分割為train:test:validation三個部分，三者比例分別為8:1:1，並將所有資料放在downloads目錄裡。
    
