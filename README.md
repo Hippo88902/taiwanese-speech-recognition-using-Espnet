@@ -85,24 +85,24 @@ $ ./TEMPLATE/asr1/setup.sh ./taiwanese/asr1
 
 5. 從其他 recipes(Ex: aishell) cp 一個 run.sh 和 local/data.sh 和 conf
 
-現在 `egs2/taiwanese/asr1` ****裡面有：
+   現在 `egs2/taiwanese/asr1` ****裡面有：
+   
+   - **conf　（訓練的配置）**
+       - 如果out of memory，在conf裡找到train的yaml，降低batch_bins
+   - **local　（很重要）**
+       - **data.sh**：把資料換成 **ESPnet** 可以吃的格式，跟 **kaldi** 差不多
+   - **steps　（不用動）**
+   - **utils　（不用動）**
+   - **pyscripts　（不用動）**
+   - **scripts　（不用動）**
+   - **cmd.sh　（不用動）**
+   - **path.sh　（有問題再動）**
+   - **asr.sh　（不用動）**
+   - **db.sh　（放database的地方，預設是在downloads）**
+   - **downloads**
+   - **run.sh　（主要執行的腳本，送參數進去asr.sh）**
 
-1. **conf　（訓練的配置）**
-    - 如果out of memory，在conf裡找到train的yaml，降低batch_bins
-2. **local　（很重要）**
-    - **data.sh**：把資料換成 **ESPnet** 可以吃的格式，跟 **kaldi** 差不多
-3. **steps　（不用動）**
-4. **utils　（不用動）**
-5. **pyscripts　（不用動）**
-6. **scripts　（不用動）**
-7. **cmd.sh　（不用動）**
-8. **path.sh　（有問題再動）**
-9. **asr.sh　（不用動）**
-10. **db.sh　（放database的地方，預設是在downloads）**
-11. **downloads**
-12. **run.sh　（主要執行的腳本，送參數進去asr.sh）**
-
-裝好可以跑yesno測試環境有沒有問題
+   裝好可以跑yesno測試環境有沒有問題
 
 ## Data-Preprocessing-for-ESPnet
 
