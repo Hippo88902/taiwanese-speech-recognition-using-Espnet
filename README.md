@@ -28,11 +28,22 @@
 
 ## Table of Contents
 
-- [環境設置](#環境設置)
 - [使用ESPnet做台語語音辨認](#使用espnet做台語語音辨認)
+- [環境設置](#環境設置)
 - [Data-Preprocessing-for-ESPnet](#data-preprocessing-for-espnet)
 - [Training-ESPnet](#Training-ESPnet)
 - [Conclusion](#conclusion)
+
+## 使用ESPnet做台語語音辨認
+
+ESPnet是使用類神經網路模型，因此在訓練前，不需要跟kaldi一樣，使用MFCC去求切割位置，而是利用深度學習的方式去訓練特徵參數。
+
+事前準備:
+
+1. 在server上安裝ESPnet (建議新建一個虛擬環境)
+2. 確認各種驅動程式，以及套件的版本與ESPnet是相容的 (ex: pytorch、cuda...)
+3. 由於有些shell script裡會使用到kaldi，需事先將soft link建立好，否則會出錯
+
 
 ## 環境設置
 1. 建立虛擬環境，需先安裝好Anaconda
@@ -40,7 +51,9 @@
 $ conda create --name espnet python=3.10
 $ conda activate espnet
 ```
-記得每新開一次terimnal都要conda activate espnet
+- 記得每新開一次terimnal都要conda activate espnet
+  
+2. 安裝需要的套件 & ESPnet
 ```sh
 $ sudo apt-get install cmake
 $ sudo apt-get install sox
@@ -54,15 +67,42 @@ $ ./setup_anaconda.sh ${CONDA_TOOLS_DIR} espnet 3.9
 $ make
 ```
 
-## 使用ESPnet做台語語音辨認
+3. 環境設定
+```sh
+# 設定conda環境
+$ cd espnet/tools
+$ CONDA_TOOLS_DIR=$(dirname ${CONDA_EXE})/..
+$ ./setup_anaconda.sh ${CONDA_TOOLS_DIR} espnet 3.10
+$ make -j 40 # CPU核心數，可以用htop看
+$ make kenlm.done
+```
 
-ESPnet是使用類神經網路模型，因此在訓練前，不需要跟kaldi一樣，使用MFCC去求切割位置，而是利用深度學習的方式去訓練特徵參數。
+4. 從 TEMPLATE 創一個新的 recipes
+```sh
+$ cd espnet/egs2
+$ ./TEMPLATE/asr1/setup.sh ./taiwanese/asr1
+```
 
-事前準備:
+5. 從其他 recipes(Ex: aishell) cp 一個 run.sh 和 local/data.sh 和 conf
 
-1. 在server上安裝ESPnet (建議新建一個虛擬環境)
-2. 確認各種驅動程式，以及套件的版本與ESPnet是相容的 (ex: pytorch、cuda...)
-3. 由於有些shell script裡會使用到kaldi，需事先將soft link建立好，否則會出錯
+現在 `egs2/taiwanese/asr1` ****裡面有：
+
+1. **conf　（訓練的配置）**
+    - 如果out of memory，在conf裡找到train的yaml，降低batch_bins
+2. **local　（很重要）**
+    - **data.sh**：把資料換成 **ESPnet** 可以吃的格式，跟 **kaldi** 差不多
+3. **steps　（不用動）**
+4. **utils　（不用動）**
+5. **pyscripts　（不用動）**
+6. **scripts　（不用動）**
+7. **cmd.sh　（不用動）**
+8. **path.sh　（有問題再動）**
+9. **asr.sh　（不用動）**
+10. **db.sh　（放database的地方，預設是在downloads）**
+11. **downloads**
+12. **run.sh　（主要執行的腳本，送參數進去asr.sh）**
+
+裝好可以跑yesno測試環境有沒有問題
 
 ## Data-Preprocessing-for-ESPnet
 
