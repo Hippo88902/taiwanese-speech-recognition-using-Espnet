@@ -1,6 +1,6 @@
 # taiwanese-speech-recognition-using-Espnet
 # 學號: 311511057 姓名: 張詔揚
-## HW1: 使用ESPnet來做台語語音辨認
+## 使用ESPnet來做台語語音辨認
 模型說明詳見(HW1改進與調整.pdf)
 ## 資料規格:
 
@@ -42,6 +42,7 @@ $ make
 
 ## Table of Contents
 
+- [環境設置](#環境設置)
 - [使用ESPnet做台語語音辨認](#使用espnet做台語語音辨認)
 - [Data-Preprocessing-for-ESPnet](#data-preprocessing-for-espnet)
 - [Training-ESPnet](#Training-ESPnet)
