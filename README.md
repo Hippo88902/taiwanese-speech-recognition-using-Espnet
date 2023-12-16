@@ -26,7 +26,21 @@
 •          --aishell_transcript.txt #放與音檔對應的文字檔
 ```
 
-## 環境設置(需先安裝好Anaconda):
+## Table of Contents
+
+- [環境設置](#環境設置)
+- [使用ESPnet做台語語音辨認](#使用espnet做台語語音辨認)
+- [Data-Preprocessing-for-ESPnet](#data-preprocessing-for-espnet)
+- [Training-ESPnet](#Training-ESPnet)
+- [Conclusion](#conclusion)
+
+## 環境設置
+1. 建立虛擬環境，需先安裝好Anaconda
+```sh
+$ conda create --name espnet python=3.10
+$ conda activate espnet
+```
+記得每新開一次terimnal都要conda activate espnet
 ```sh
 $ sudo apt-get install cmake
 $ sudo apt-get install sox
@@ -39,14 +53,6 @@ $ CONDA_TOOLS_DIR=$(dirname ${CONDA_EXE})/..
 $ ./setup_anaconda.sh ${CONDA_TOOLS_DIR} espnet 3.9
 $ make
 ```
-
-## Table of Contents
-
-- [環境設置](#環境設置)
-- [使用ESPnet做台語語音辨認](#使用espnet做台語語音辨認)
-- [Data-Preprocessing-for-ESPnet](#data-preprocessing-for-espnet)
-- [Training-ESPnet](#Training-ESPnet)
-- [Conclusion](#conclusion)
 
 ## 使用ESPnet做台語語音辨認
 
