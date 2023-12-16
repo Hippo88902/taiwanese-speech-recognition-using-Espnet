@@ -8,24 +8,6 @@
 2. 輸入：台語語音音檔（格式：wav檔, 22 kHz, mono, 32 bits） 
 3. 輸出：台羅拼音（依教育部標準）
    
-## 訓練資料目錄:
-```
-• downloads/
-•    data_aishell/
-•       resource_aishell/
-•          --speaker.info # 關於語者資訊
-•          --lexicon.txt  # 辭典
-•       wav/
-•          train/
-•             --global/ # 訓練音檔
-•          test/
-•             --global/ # Kaggles競賽用音檔
-•          dev/
-•             --global/ # 測試音檔(不能是空的)
-•       transcript/
-•          --aishell_transcript.txt #放與音檔對應的文字檔
-```
-
 ## Table of Contents
 
 - [使用ESPnet做台語語音辨認](#使用espnet做台語語音辨認)
@@ -105,6 +87,25 @@ $ ./TEMPLATE/asr1/setup.sh ./taiwanese/asr1
    裝好可以跑yesno測試環境有沒有問題
 
 ## Data-Preprocessing-for-ESPnet
+
+# 訓練資料目錄:
+```
+• downloads/
+•    data_aishell/
+•       resource_aishell/
+•          --speaker.info # 關於語者資訊
+•          --lexicon.txt  # 辭典
+•       wav/
+•          train/
+•             --global/ # 訓練音檔
+•          test/
+•             --global/ # Kaggles競賽用音檔
+•          dev/
+•             --global/ # 測試音檔(不能是空的)
+•       transcript/
+•          --aishell_transcript.txt #放與音檔對應的文字檔
+```
+
 
 1. 與Kaldi不同，ESPnet除train/test外，另外還需一組dev資料來幫助訓練，使ESPnet在training時，能及時協助評估訓練效能。此外我們通常會將dataset分割為train:test:validation三個部分，三者比例分別為8:1:1，並將所有資料放在downloads目錄裡。
    
