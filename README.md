@@ -104,6 +104,21 @@ $ ./TEMPLATE/asr1/setup.sh ./taiwanese/asr1
 •       transcript/
 •          --aishell_transcript.txt #放與音檔對應的文字檔
 ```
+(以aishell舉例)
+
+現在有兩條路可以選：
+
+1. 把資料放到downloads，在`local`寫一個 **taiwanese** 的`data.sh`　（較難） 
+2. 沿用aishell的data.sh，把資料以 **aishell** 的格式放入`downloads`　（較易）
+   
+data.sh一樣需要：
+```sh
+spk2utt # Speaker information
+text    # Transcription file
+utt2spk # Speaker information
+wav.scp # Audio file
+```
+- test的id需要加到text後面
 
 ## Data-Preprocessing-for-ESPnet
 
