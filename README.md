@@ -139,14 +139,250 @@ data_aishell/
 ## Data-Preprocessing-for-ESPnet
 
 1. 與Kaldi不同，ESPnet除train/test外，另外還需一組dev資料來幫助訓練，使ESPnet在training時，能及時協助評估訓練效能。此外我們通常會將dataset分割為train:test:validation三個部分，三者比例分別為8:1:1，並將所有資料放在downloads目錄裡。
+p.s: 訓練的過程會藉由dev的辨識結果進行修正
+辨識後的結果放在：
+`/espnet/egs2/taiwanese/asr1/exp/asr_train_.../decode_asr_.../test/text`
+
+3. 在downloads/resource_aishell裡放入speaker.info和lexicon，兩者分別為語者性別及與之對應的辭典。
    
-2. 在downloads/resource_aishell裡放入speaker.info和lexicon，兩者分別為語者性別及與之對應的辭典。
+4. 因為資料集為單語者資料，所以可以將所有訓練資料都放在downloads/data_aishell/wav/train/global裡面，若資料為多語者資料，可在download/data_aishell/wav/train裡面依每個語者編號順序放置訓練資料的.wav檔。
    
-3. 因為資料集為單語者資料，所以可以將所有訓練資料都放在downloads/data_aishell/wav/train/global裡面，若資料為多語者資料，可在download/data_aishell/wav/train裡面依每個語者編號順序放置訓練資料的.wav檔。
-   
-4. 由於音檔格式為（wav檔, 22 kHz, mono, 32 bits），因此使用 sox 將音檔轉成（wav檔, 16 kHz, mono, 16 bits）
+5. 由於音檔格式為（wav檔, 22 kHz, mono, 32 bits），因此使用 sox 將音檔轉成（wav檔, 16 kHz, mono, 16 bits）
 
 ## Training-ESPnet
+
+如果把自己的資料裝進去後，可以跑完，就可以改config，可以拿aishell或是librispeech裡面的conf來用
+
+- 如果**`cuda out of memory`**，降低conf裡面的`batch_bins`
+- **EX1：aishell**
+    
+    aishell的`conf/tuning`裡面有：
+    
+    - `train_asr_conformer.yaml`
+        
+        ```yaml
+        # network architecture
+        # encoder related
+        encoder: conformer
+        encoder_conf:
+            output_size: 256    # dimension of attention
+            attention_heads: 4
+            linear_units: 2048  # the number of units of position-wise feed forward
+            num_blocks: 12      # the number of encoder blocks
+            dropout_rate: 0.1
+            positional_dropout_rate: 0.1
+            attention_dropout_rate: 0.0
+            input_layer: conv2d # encoder architecture type
+            normalize_before: true
+            pos_enc_layer_type: rel_pos
+            selfattention_layer_type: rel_selfattn
+            activation_type: swish
+            macaron_style: true
+            use_cnn_module: true
+            cnn_module_kernel: 15
+        
+        # decoder related
+        decoder: transformer
+        decoder_conf:
+            attention_heads: 4
+            linear_units: 2048
+            num_blocks: 6
+            dropout_rate: 0.1
+            positional_dropout_rate: 0.1
+            self_attention_dropout_rate: 0.0
+            src_attention_dropout_rate: 0.0
+        
+        # hybrid CTC/attention
+        model_conf:
+            ctc_weight: 0.3
+            lsm_weight: 0.1     # label smoothing option
+            length_normalized_loss: false
+        
+        # minibatch related
+        batch_type: numel
+        batch_bins: 4000000
+        
+        # optimization related
+        accum_grad: 4
+        grad_clip: 5
+        max_epoch: 50
+        val_scheduler_criterion:
+            - valid
+            - acc
+        best_model_criterion:
+        -   - valid
+            - acc
+            - max
+        keep_nbest_models: 10
+        
+        optim: adam
+        optim_conf:
+           lr: 0.0005
+        scheduler: warmuplr
+        scheduler_conf:
+           warmup_steps: 30000
+        
+        specaug: specaug
+        specaug_conf:
+            apply_time_warp: true
+            time_warp_window: 5
+            time_warp_mode: bicubic
+            apply_freq_mask: true
+            freq_mask_width_range:
+            - 0
+            - 30
+            num_freq_mask: 2
+            apply_time_mask: true
+            time_mask_width_range:
+            - 0
+            - 40
+            num_time_mask: 2
+        ```
+        
+    
+    把run.sh的`asr_config`改成這個路徑即可，這樣在stage11的訓練時，就會用這邊的conf來訓練
+    
+- **EX2：librispeech(s3prl)**
+    
+    librispeech的`conf/tuning`裡面有：
+    
+    - `train_asr_conformer7_wavlm_large.yaml`
+        
+        ```yaml
+        # Trained with Ampere A6000(48GB) x 2 GPUs. It takes about 10 days.
+        batch_type: numel
+        batch_bins: 40000000
+        accum_grad: 3
+        max_epoch: 35
+        patience: none
+        init: none
+        best_model_criterion:
+        -   - valid
+            - acc
+            - max
+        keep_nbest_models: 10
+        unused_parameters: true
+        freeze_param: [
+        "frontend.upstream"
+        ]
+        
+        frontend: s3prl
+        frontend_conf:
+            frontend_conf:
+                upstream: wavlm_large  # Note: If the upstream is changed, please change the input_size in the preencoder.
+            download_dir: ./hub
+            multilayer_feature: True
+        
+        preencoder: linear
+        preencoder_conf:
+            input_size: 1024  # Note: If the upstream is changed, please change this value accordingly.
+            output_size: 80
+        
+        encoder: conformer
+        encoder_conf:
+            output_size: 512
+            attention_heads: 8
+            linear_units: 2048
+            num_blocks: 12
+            dropout_rate: 0.1
+            positional_dropout_rate: 0.1
+            attention_dropout_rate: 0.1
+            input_layer: conv2d2
+            normalize_before: true
+            macaron_style: true
+            pos_enc_layer_type: "rel_pos"
+            selfattention_layer_type: "rel_selfattn"
+            activation_type: "swish"
+            use_cnn_module:  true
+            cnn_module_kernel: 31
+        
+        decoder: transformer
+        decoder_conf:
+            attention_heads: 8
+            linear_units: 2048
+            num_blocks: 6
+            dropout_rate: 0.1
+            positional_dropout_rate: 0.1
+            self_attention_dropout_rate: 0.1
+            src_attention_dropout_rate: 0.1
+        
+        model_conf:
+            ctc_weight: 0.3
+            lsm_weight: 0.1
+            length_normalized_loss: false
+            extract_feats_in_collect_stats: false   # Note: "False" means during collect stats (stage 10), generating dummy stats files rather than extract_feats by forward frontend.
+        
+        optim: adam
+        optim_conf:
+            lr: 0.0025
+        scheduler: warmuplr
+        scheduler_conf:
+            warmup_steps: 40000
+        
+        specaug: specaug
+        specaug_conf:
+            apply_time_warp: true
+            time_warp_window: 5
+            time_warp_mode: bicubic
+            apply_freq_mask: true
+            freq_mask_width_range:
+            - 0
+            - 30
+            num_freq_mask: 2
+            apply_time_mask: true
+            time_mask_width_range:
+            - 0
+            - 40
+            num_time_mask: 2
+        ```
+        
+    - **例(run.sh)**：
+        
+        ```bash
+        #!/usr/bin/env bash
+        # Set bash to 'debug' mode, it will exit on :
+        # -e 'error', -u 'undefined variable', -o ... 'error in pipeline', -x 'print commands',
+        set -e
+        set -u
+        set -o pipefail
+        
+        train_set=train
+        valid_set=dev
+        test_sets=test
+        
+        asr_config=conf/tuning_libri/train_asr_conformer7_wavlm_large.yaml
+        inference_config=conf/decode_asr_transformer.yaml
+        
+        lm_config=conf/train_lm_transformer.yaml
+        use_lm=false
+        use_wordlm=false
+        
+        # speed perturbation related
+        # (train_set will be "${train_set}_sp" if speed_perturb_factors is specified)
+        speed_perturb_factors="0.9 1.0 1.1"
+        
+        ./asr.sh \
+            --nj 32 \
+            --inference_nj 32 \
+            --ngpu 1 \
+            --lang zh \
+            --audio_format "flac.ark" \
+            --feats_type raw \
+            --token_type char \
+            --use_lm ${use_lm}                                 \
+            --use_word_lm ${use_wordlm}                        \
+            --lm_config "${lm_config}"                         \
+            --asr_config "${asr_config}"                       \
+            --inference_config "${inference_config}"           \
+            --train_set "${train_set}"                         \
+            --valid_set "${valid_set}"                         \
+            --test_sets "${test_sets}"                         \
+            --speed_perturb_factors "${speed_perturb_factors}" \
+            --asr_speech_fold_length 512 \
+            --asr_text_fold_length 150 \
+            --lm_fold_length 150 \
+            --lm_train_text "data/${train_set}/text" "$@" \
+        ```
 
 ```sh
 $ sudo nvidia-smi -c 3
