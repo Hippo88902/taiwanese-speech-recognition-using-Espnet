@@ -118,8 +118,8 @@ text    # Transcription file
 utt2spk # Speaker information
 wav.scp # Audio file
 ```
-- test的id需要加到text後面
-
+- test的id需要加到text後面，因為test是我們要的辨識結果所以先給a e i o u
+![image](https://github.com/Hippo88902/taiwanese-speech-recognition-using-Espnet/blob/main/test.png)
 ## Data-Preprocessing-for-ESPnet
 
 1. 與Kaldi不同，ESPnet除train/test外，另外還需一組dev資料來幫助訓練，使ESPnet在training時，能及時協助評估訓練效能。此外我們通常會將dataset分割為train:test:validation三個部分，三者比例分別為8:1:1，並將所有資料放在downloads目錄裡。
