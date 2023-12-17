@@ -341,7 +341,7 @@ $ nohup ./run.sh >& run.sh.log &
             num_time_mask: 2
         ```
         
-    - **例(run.sh)**：
+    - **run.sh**：
         
         ```bash
         #!/usr/bin/env bash
