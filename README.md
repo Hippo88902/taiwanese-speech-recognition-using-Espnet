@@ -118,7 +118,7 @@ text    # Transcription file
 utt2spk # Speaker information
 wav.scp # Audio file
 ```
-- test的id需要加到text後面，因為test是我們要的辨識結果所以先給a e i o u
+- test的id需要加到text後面，因為test是我們要的辨識結果所以先給 a e i o u
 ![image](https://github.com/Hippo88902/taiwanese-speech-recognition-using-Espnet/blob/main/test.png)
 
 aishell的檔案架構:
@@ -138,7 +138,7 @@ data_aishell/
   
 ## Data-Preprocessing-for-ESPnet
 
-1. 與Kaldi不同，ESPnet除train/test外，另外還需一組dev資料來幫助訓練，使ESPnet在training時，能及時協助評估訓練效能。此外我們通常會將dataset分割為train:test:validation三個部分，三者比例分別為8:1:1，並將所有資料放在downloads目錄裡。(p.s: 訓練的過程會藉由dev的辨識結果進行修正)
+1. 與Kaldi不同，ESPnet除train/test外，另外還需一組dev資料來幫助訓練，使ESPnet在training時，能及時協助評估訓練效能。此外我們通常會將dataset分割為train:test:validation三個部分，三者比例分別為8:1:1，並將所有資料放在downloads目錄裡。(p.s.: 訓練的過程會藉由dev的辨識結果進行修正)
 辨識後的結果放在：
 `/espnet/egs2/taiwanese/asr1/exp/asr_train_.../decode_asr_.../test/text`
 
@@ -390,47 +390,38 @@ $ nohup ./run.sh >& run.sh.log &
             --lm_train_text "data/${train_set}/text" "$@" \
         ```
         
-```sh
-train_set=train
-valid_set=dev
-test_sets="dev test"
-
-asr_config=conf/train_asr_branchformer.yaml
-inference_config=conf/decode_asr_branchformer.yaml
-
-lm_config=conf/train_lm_transformer.yaml
-use_lm=false
-use_wordlm=false
-
-# speed perturbation related
-# (train_set will be "${train_set}_sp" if speed_perturb_factors is specified)
-speed_perturb_factors="0.9 1.0 1.1"
-
-./asr.sh \
-    --nj 32 \
-    --inference_nj 32 \
-    --ngpu 1 \
-    --lang zh \
-    --audio_format "flac.ark" \
-    --feats_type raw \
-    --token_type char \
-    --use_lm ${use_lm}                                 \
-    --use_word_lm ${use_wordlm}                        \
-    --lm_config "${lm_config}"                         \
-    --asr_config "${asr_config}"                       \
-    --inference_config "${inference_config}"           \
-    --train_set "${train_set}"                         \
-    --valid_set "${valid_set}"                         \
-    --test_sets "${test_sets}"                         \
-    --speed_perturb_factors "${speed_perturb_factors}" \
-    --asr_speech_fold_length 512 \
-    --asr_text_fold_length 150 \
-    --lm_fold_length 150 \
-    --lm_train_text "data/${train_set}/text" "$@"
-```
-
 p.s.: 如果過程順利，就只要等training結束，若訓練中途出錯，則可根據.log檔去debug。
 
+如果你有仔細看conf的話，librispeech多了這一段，這裡可以用別人的pre-trained model
+```sh
+frontend: s3prl
+frontend_conf:
+    frontend_conf:
+        upstream: wavlm_large  # Note: If the upstream is changed, please change the input_size in the preencoder.
+    download_dir: ./hub
+    multilayer_feature: True
+
+preencoder: linear
+preencoder_conf:
+    input_size: 1024  # Note: If the upstream is changed, please change this value accordingly.
+    output_size: 80
+​```
+
+可以到這邊找模型：https://huggingface.co/s3prl/converted_ckpts/tree/main
+記得要先到tools裡面裝
+install_s3prl.sh
+install_fairseq.sh
+注意input_size
+Ex：
+```sh
+frontend: s3prl
+frontend_conf:
+    frontend_conf:
+        upstream: wavlm_url  
+        path_or_url: https://huggingface.co/s3prl/converted_ckpts/resolve/main/wavlm_base_plus.pt
+    download_dir: ./wavlm
+    multilayer_feature: True
+```
 ## 訓練執行過程:
 
 1. 第一階段，特徵抽取(Feature extraction)，首先求fbank,並讓80%的fbank在每一frame都有pitch(訓練用)，接著做speed-perturbed 為了 data augmentation，以及求global CMVN(在某個範圍内統計若干聲學特徵的mean和variance)，如果提供了語句和語者的對應關係，即uut2spk，則進行speaker CMVN，否則做global CMVN。由於我們的資料是單語者資料，所以做global CMVN。
