@@ -20,6 +20,7 @@ ESPnet是使用類神經網路模型，因此在訓練前，不需要跟kaldi一
 - [Data-Preprocessing-for-ESPnet](#data-preprocessing-for-espnet)
 - [Training-ESPnet](#Training-ESPnet)
 - [Conclusion](#conclusion)
+- [附錄](#附錄)
 
 事前準備:
 
@@ -34,7 +35,7 @@ ESPnet是使用類神經網路模型，因此在訓練前，不需要跟kaldi一
 $ conda create --name espnet python=3.10
 $ conda activate espnet
 ```
-- 記得每新開一次terimnal都要conda activate espnet
+- p.s.: 記得每新開一次terimnal都要conda activate espnet
   
 2. 安裝需要的套件 & ESPnet
 ```sh
@@ -104,9 +105,8 @@ $ ./TEMPLATE/asr1/setup.sh ./taiwanese/asr1
 •       transcript/
 •          --aishell_transcript.txt #放與音檔對應的文字檔
 ```
-(以aishell舉例)
 
-現在有兩條路可以選：
+現在有兩條路可以選(以aishell為例)：
 
 1. 把資料放到downloads，在`local`寫一個 **taiwanese** 的`data.sh`　（較難） 
 2. 沿用aishell的data.sh，把資料以 **aishell** 的格式放入`downloads`　（較易）
@@ -118,7 +118,8 @@ text    # Transcription file
 utt2spk # Speaker information
 wav.scp # Audio file
 ```
-- test的id需要加到text後面，因為test是我們要的辨識結果所以先給 a e i o u
+- p.s: test音檔的id需要加到text後面，因為test是我們要的辨識結果所以先給 a e i o u
+- 
 ![image](https://github.com/Hippo88902/taiwanese-speech-recognition-using-Espnet/blob/main/test.png)
 
 aishell的檔案架構:
@@ -134,7 +135,7 @@ data_aishell/
    transcript/
       --aishell_transcript_v0.8.txt #放與音檔對應的文字檔
 ```
-- 因為只有一個語者，所以train, test, dev裡面只有一個資料夾
+- p.s.: 因為只有一個語者，所以train, test, dev裡面只有一個資料夾
   
 ## Data-Preprocessing-for-ESPnet
 
@@ -393,7 +394,7 @@ $ nohup ./run.sh >& run.sh.log &
         
 - p.s.: 如果過程順利，就只要等training結束，若訓練中途出錯，則可根據.log檔去debug。
 
-若有仔細觀察conf檔，則可以發現librispeech多了這一段，這部分程式碼可以導入自己想要的pretrained model:
+若有仔細觀察conf檔，則可以發現librispeech多了這一段程式碼，這段程式碼可以導入自己想要的pretrained model:
 ```sh
 frontend: s3prl
 frontend_conf:
@@ -452,3 +453,70 @@ p.s.2: 除此之外，也能調整batch size大小，讓GPU的memory能夠盡量
 ![image](https://github.com/MachineLearningNTUT/taiwanese-asr-using-kaldi-toolkit-Hippo88902/blob/main/ESPnet%E7%B5%90%E6%9E%9C.jpg)
 
 總體來說，ESPnet的訓練效果會比Kaldi的訓練效果來的好，不過ESPnet所需要的訓練時間也比較長，也較耗費計算資源。然而在資料量較少的情況下，Kaldi基於傳統機率統計模型的訓練方式，或許會表現的比ESPnet還好，但是當data的量足夠多時，神經網路的訓練方式通常會outperform傳統的機率統計模型。因此在資料量充足時，我們會採用Neural network的方式進行訓練，在資料量不足以train起一個model時，則可以使用機率統計模型來得到一個還不差的結果，這或許成為了一種data數量上的trade-off。
+
+## 附錄: 
+
+****將音檔轉成轉成 16 kHz sampling, signed-integer, 16 bits****
+    - **cd到存放音檔的資料夾**
+    
+    ```bash
+    #!/bin/bash
+    
+    for x in ./*.wav;do
+    b=${x##*/}
+    sox $b -r 16000 -e signed-integer -b 16 tmp-$b
+    rm -rf $b
+    mv tmp-$b $b
+    
+    done
+    ```
+    
+    - p.s.: 可以用`soxi <audio_file>`來檢查是否轉換成功
+
+****將部分音檔切分為dev資料夾，到有train, test的資料夾那個目錄****
+```sh
+import os
+import shutil
+import random
+
+# 設定資料夾路徑
+train_dir = 'train'
+eval_dir = 'dev'
+
+# 創建eval資料夾（如果不存在的話）
+if not os.path.exists(eval_dir):
+    os.makedirs(eval_dir)
+
+# 列出train資料夾中所有的文件
+all_files = [f for f in os.listdir(train_dir) if os.path.isfile(os.path.join(train_dir, f))]
+
+# 隨機選取10%的文件
+num_eval = int(0.1 * len(all_files))
+eval_files = random.sample(all_files, num_eval)
+
+# 把這些文件移動到eval資料夾
+for f in eval_files:
+    shutil.move(os.path.join(train_dir, f), os.path.join(eval_dir, f))
+
+print(f'Moved {num_eval} files from {train_dir} to {eval_dir}')
+```
+
+****text轉csv程式碼****
+```sh
+import csv
+
+file = '/home/<username>/kaldi/egs/taiwanese/s5/exp/chain/tdnn_1d_sp/decode_test/scoring_kaldi/penalty_0.5/7.txt'
+
+lst = []
+with open(file, 'r') as lines:
+    lines = lines.readlines()
+    for line in lines:
+        lst.append(line.split(' ')[0] + ',' + ' '.join(line.strip('\n').split(' ')[1:]))
+sorted_lst = sorted(lst, key = lambda x: int(x.split(',')[0]))
+print(sorted_lst)
+
+with open('result_gpu.csv', 'w') as output_file:
+    output_file.write('id' + ',' + 'text' + '\n')
+    for line in sorted_lst:
+        output_file.write(line + '\n')
+```
