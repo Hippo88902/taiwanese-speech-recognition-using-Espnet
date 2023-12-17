@@ -457,19 +457,17 @@ p.s.2: 除此之外，也能調整batch size大小，讓GPU的memory能夠盡量
 ## 附錄: 
 
 ****將音檔轉成轉成 16 kHz sampling, signed-integer, 16 bits****
-    - **cd到存放音檔的資料夾**
-    ```sh
-    #!/bin/bash
+    **cd到存放音檔的資料夾**
     
+    #!/bin/bash
     for x in ./*.wav;do
     b=${x##*/}
     sox $b -r 16000 -e signed-integer -b 16 tmp-$b
     rm -rf $b
     mv tmp-$b $b
-    
     done
-    ```
-    - p.s.: 可以用`soxi <audio_file>`來檢查是否轉換成功
+
+- p.s.: 可以用`soxi <audio_file>`來檢查是否轉換成功
 
 ****將部分音檔切分為dev資料夾，到有train, test的資料夾那個目錄****
 ```sh
