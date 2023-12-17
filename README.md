@@ -120,6 +120,22 @@ wav.scp # Audio file
 ```
 - test的id需要加到text後面，因為test是我們要的辨識結果所以先給a e i o u
 ![image](https://github.com/Hippo88902/taiwanese-speech-recognition-using-Espnet/blob/main/test.png)
+
+aishell的檔案架構:
+```sh
+data_aishell/
+   resource_aishell/
+      --speaker.info
+      --lexicon.txt(E2E不需要)
+   wav/
+      train/語者名稱資料夾/audiofile
+      test/語者名稱資料夾/...
+      dev/語者名稱資料夾/...
+   transcript/
+      --aishell_transcript_v0.8.txt #放與音檔對應的文字檔
+```
+- 我們只有一個語者，所以理當train, test, dev裡面只有一個資料夾
+  
 ## Data-Preprocessing-for-ESPnet
 
 1. 與Kaldi不同，ESPnet除train/test外，另外還需一組dev資料來幫助訓練，使ESPnet在training時，能及時協助評估訓練效能。此外我們通常會將dataset分割為train:test:validation三個部分，三者比例分別為8:1:1，並將所有資料放在downloads目錄裡。
