@@ -177,6 +177,8 @@ p.s.: 如果過程順利，就只要等training結束，若訓練中途出錯，
 
 5. 最終階段，Decode完後，即可得到我們要的ASR model，並辨識test裡面的.wav檔案，並得到訓練的結果。
 
+![image](https://github.com/Hippo88902/taiwanese-asr-using-kaldi-toolkit/blob/main/%E8%A8%93%E7%B7%B4%E7%B5%90%E6%9E%9C.png)
+
 p.s.1: 前三個階段可看作是training的事前準備，都交由CPU去處理，因此所花費的時間並不多。
 
 p.s.2: 除此之外，也能調整batch size大小，讓GPU的memory能夠盡量地吃滿(提高利用度)，此舉能夠加快training的速度。
