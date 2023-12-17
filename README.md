@@ -134,7 +134,7 @@ data_aishell/
    transcript/
       --aishell_transcript_v0.8.txt #放與音檔對應的文字檔
 ```
-- 我們只有一個語者，所以理當train, test, dev裡面只有一個資料夾
+- 因為只有一個語者，所以train, test, dev裡面只有一個資料夾
   
 ## Data-Preprocessing-for-ESPnet
 
@@ -158,7 +158,7 @@ $ nohup ./run.sh >& run.sh.log &
 # 保證登出不會中斷執行程式，因為training時間較久，下這個指令能確保訓練過程不會因為突發情況中斷。
 ```
 
-如果放入處理好的資料可以跑完所有流程，就可以開始著手修改config，可以沿用aishell或是librispeech裡面的conf檔。
+如果放入處理好的資料可以跑完所有流程，便可以開始著手修改config，可以沿用aishell或是librispeech裡面的conf檔。
 
 - **EX1：aishell**
     
@@ -245,7 +245,7 @@ $ nohup ./run.sh >& run.sh.log &
             num_time_mask: 2
         ```
             
-    把run.sh的`asr_config`改成這個路徑即可，這樣在stage11的訓練時，就會用這邊的conf來訓練
+    - p.s.: 把run.sh的`asr_config`改成這個路徑即可，這樣在stage11的訓練時，就會用這邊的conf來訓練
     
 - **EX2：librispeech(s3prl)**
     
@@ -393,7 +393,7 @@ $ nohup ./run.sh >& run.sh.log &
         
 - p.s.: 如果過程順利，就只要等training結束，若訓練中途出錯，則可根據.log檔去debug。
 
-如果你有仔細觀察conf檔，librispeech多了這一段，這部分可以導入自己喜歡的pretrained model:
+若有仔細觀察conf檔，則可以發現librispeech多了這一段，這部分程式碼可以導入自己想要的pretrained model:
 ```sh
 frontend: s3prl
 frontend_conf:
