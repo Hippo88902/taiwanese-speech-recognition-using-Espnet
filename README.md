@@ -150,16 +150,16 @@ data_aishell/
 
 ## Training-ESPnet
 
-若有空閒的GPU資源可下
+若有空閒的GPU資源可下:
 ```sh
 $ sudo nvidia-smi -c 3
 # 讓gpu進入獨佔模式，可加快訓練的速度(不過要先跟其他人協調好再下這行指令)
 $ nohup ./run.sh >& run.sh.log &
 # 保證登出不會中斷執行程式，因為training時間較久，下這個指令能確保訓練過程不會因為突發情況中斷。
 ```
-如果把自己的資料裝進去後，可以跑完，就可以改config，可以拿aishell或是librispeech裡面的conf來用
 
-- 如果**`cuda out of memory`**，降低conf裡面的`batch_bins`
+如果放入處理好的資料可以跑完所有流程，就可以開始著手修改config，可以沿用aishell或是librispeech裡面的conf檔。
+
 - **EX1：aishell**
     
     aishell的`conf/tuning`裡面有：
@@ -244,8 +244,7 @@ $ nohup ./run.sh >& run.sh.log &
             - 40
             num_time_mask: 2
         ```
-        
-    
+            
     把run.sh的`asr_config`改成這個路徑即可，這樣在stage11的訓練時，就會用這邊的conf來訓練
     
 - **EX2：librispeech(s3prl)**
@@ -390,10 +389,11 @@ $ nohup ./run.sh >& run.sh.log &
             --lm_train_text "data/${train_set}/text" "$@" \
         ```
         
-p.s.: 如果過程順利，就只要等training結束，若訓練中途出錯，則可根據.log檔去debug。
+- p.s.: 如果**`cuda out of memory`**，可以降低conf裡面的`batch_bins`
+        
+- p.s.: 如果過程順利，就只要等training結束，若訓練中途出錯，則可根據.log檔去debug。
 
-如果你有仔細看conf的話，librispeech多了這一段，這裡可以用別人的pre-trained model
-
+如果你有仔細觀察conf檔，librispeech多了這一段，這部分可以導入自己喜歡的pretrained model:
 ```sh
 frontend: s3prl
 frontend_conf:
@@ -408,13 +408,15 @@ preencoder_conf:
     output_size: 80
 ```
 
-可以到huggingface找模型：https://huggingface.co/s3prl/converted_ckpts/tree/main
-記得要cd到tools執行
-install_s3prl.sh
-install_fairseq.sh
-注意input_size，可能導致無法正確執行
+- p.s.: 注意input_size，可能導致無法正確執行
+- p.s.: 可以到huggingface網站找預訓練模型：https://huggingface.co/s3prl/converted_ckpts/tree/main
+- p.s.: 導入pre-trained model之前記得要cd到tools執行
+```sh
+$ ./install_s3prl.sh
+$ ./install_fairseq.sh
+```
 
-Ex：
+導入pretrained model的範例：
 ```sh
 frontend: s3prl
 frontend_conf:
@@ -424,6 +426,7 @@ frontend_conf:
     download_dir: ./wavlm
     multilayer_feature: True
 ```
+
 ## 訓練執行過程:
 
 1. 第一階段，特徵抽取(Feature extraction)，首先求fbank,並讓80%的fbank在每一frame都有pitch(訓練用)，接著做speed-perturbed 為了 data augmentation，以及求global CMVN(在某個範圍内統計若干聲學特徵的mean和variance)，如果提供了語句和語者的對應關係，即uut2spk，則進行speaker CMVN，否則做global CMVN。由於我們的資料是單語者資料，所以做global CMVN。
