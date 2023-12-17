@@ -408,11 +408,11 @@ preencoder_conf:
     output_size: 80
 ```
 
-可以到這邊找模型：https://huggingface.co/s3prl/converted_ckpts/tree/main
-記得要先到tools裡面裝
+可以到huggingface找模型：https://huggingface.co/s3prl/converted_ckpts/tree/main
+記得要cd到tools執行
 install_s3prl.sh
 install_fairseq.sh
-注意input_size
+注意input_size，可能導致無法正確執行
 
 Ex：
 ```sh
