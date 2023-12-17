@@ -382,7 +382,8 @@ data_aishell/
             --lm_fold_length 150 \
             --lm_train_text "data/${train_set}/text" "$@" \
         ```
-
+        
+若有空閒的GPU資源可下
 ```sh
 $ sudo nvidia-smi -c 3
 # 讓gpu進入獨佔模式，可加快訓練的速度(不過要先跟其他人協調好再下這行指令)
