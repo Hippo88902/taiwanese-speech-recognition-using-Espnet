@@ -150,6 +150,13 @@ data_aishell/
 
 ## Training-ESPnet
 
+若有空閒的GPU資源可下
+```sh
+$ sudo nvidia-smi -c 3
+# 讓gpu進入獨佔模式，可加快訓練的速度(不過要先跟其他人協調好再下這行指令)
+$ nohup ./run.sh >& run.sh.log &
+# 保證登出不會中斷執行程式，因為training時間較久，下這個指令能確保訓練過程不會因為突發情況中斷。
+```
 如果把自己的資料裝進去後，可以跑完，就可以改config，可以拿aishell或是librispeech裡面的conf來用
 
 - 如果**`cuda out of memory`**，降低conf裡面的`batch_bins`
@@ -383,14 +390,6 @@ data_aishell/
             --lm_train_text "data/${train_set}/text" "$@" \
         ```
         
-若有空閒的GPU資源可下
-```sh
-$ sudo nvidia-smi -c 3
-# 讓gpu進入獨佔模式，可加快訓練的速度(不過要先跟其他人協調好再下這行指令)
-$ nohup ./run.sh >& run.sh.log &
-# 保證登出不會中斷執行程式，因為training時間較久，下這個指令能確保訓練過程不會因為突發情況中斷。
-```
-## 訓練參數
 ```sh
 train_set=train
 valid_set=dev
