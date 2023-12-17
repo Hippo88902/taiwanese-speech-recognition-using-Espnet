@@ -138,10 +138,7 @@ data_aishell/
   
 ## Data-Preprocessing-for-ESPnet
 
-1. 與Kaldi不同，ESPnet除train/test外，另外還需一組dev資料來幫助訓練，使ESPnet在training時，能及時協助評估訓練效能。此外我們通常會將dataset分割為train:test:validation三個部分，三者比例分別為8:1:1，並將所有資料放在downloads目錄裡。
-   
-p.s: 訓練的過程會藉由dev的辨識結果進行修正
-
+1. 與Kaldi不同，ESPnet除train/test外，另外還需一組dev資料來幫助訓練，使ESPnet在training時，能及時協助評估訓練效能。此外我們通常會將dataset分割為train:test:validation三個部分，三者比例分別為8:1:1，並將所有資料放在downloads目錄裡。(p.s: 訓練的過程會藉由dev的辨識結果進行修正)
 辨識後的結果放在：
 `/espnet/egs2/taiwanese/asr1/exp/asr_train_.../decode_asr_.../test/text`
 
