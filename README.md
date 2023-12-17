@@ -393,6 +393,7 @@ $ nohup ./run.sh >& run.sh.log &
 p.s.: 如果過程順利，就只要等training結束，若訓練中途出錯，則可根據.log檔去debug。
 
 如果你有仔細看conf的話，librispeech多了這一段，這裡可以用別人的pre-trained model
+
 ```sh
 frontend: s3prl
 frontend_conf:
@@ -405,13 +406,14 @@ preencoder: linear
 preencoder_conf:
     input_size: 1024  # Note: If the upstream is changed, please change this value accordingly.
     output_size: 80
-​```
+```
 
 可以到這邊找模型：https://huggingface.co/s3prl/converted_ckpts/tree/main
 記得要先到tools裡面裝
 install_s3prl.sh
 install_fairseq.sh
 注意input_size
+
 Ex：
 ```sh
 frontend: s3prl
